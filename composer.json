@@ -1,0 +1,15 @@
+{
+    "name": "zandervdm/gitception",
+    "description": "Log exceptions to Bitbucket and Github",
+    "type": "library",
+    "require": {
+        "gentle/bitbucket-api": "^0.8.0"
+    },
+    "authors": [
+        {
+            "name": "Zander van der Meer",
+            "email": "zander.meer@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
