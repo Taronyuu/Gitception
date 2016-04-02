@@ -26,13 +26,13 @@ class Gitception
     {
         //Store all the config values in a local var, and decrypt the credentials.
         $this->config = config('gitception');
-        $this->config['email'] = Crypt::decrypt($this->config['email']);
-        $this->config['password'] = Crypt::decrypt($this->config['password']);
+        $email = Crypt::decrypt($this->config['email']);
+        $password = Crypt::decrypt($this->config['password']);
 
         //Create a new issue object for Bitbucket, and set our credentials.
         $this->bitbucket = new Issues();
         $this->bitbucket->setCredentials(
-            new Basic($this->config['email'], $this->config['password'])
+            new Basic($email, $password)
         );
     }
 
