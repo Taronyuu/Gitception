@@ -13,5 +13,10 @@
             "email": "zander.meer@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-0": {
+             "Zandervdm\\Gitception\\": "src/"
+        }
+    },
     "minimum-stability": "dev"
 }
