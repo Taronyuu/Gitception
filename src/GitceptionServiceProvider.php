@@ -4,6 +4,7 @@ use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Zandervdm\Gitception\Commands\GitceptionGenerateCredentials;
+use Zandervdm\Gitception\Commands\GitceptionResetIssues;
 
 class GitceptionServiceProvider extends ServiceProvider
 {
@@ -46,7 +47,12 @@ class GitceptionServiceProvider extends ServiceProvider
             return new GitceptionGenerateCredentials();
         });
 
+        $this->app->singleton('zandervdm.gitception.command.reset', function(){
+            return new GitceptionResetIssues();
+        });
+
         $this->commands('zandervdm.gitception.command.generate');
+        $this->commands('zandervdm.gitception.command.reset');
     }
 
 }
