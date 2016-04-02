@@ -83,6 +83,10 @@ class Gitception
             return false;
         }
 
+        if(!in_array(env('APP_ENV'), $this->config['environments'])){
+            return false;
+        }
+
         //This exception is in the 'ignore' config, so ignore it.
         if(in_array($exceptionData['class'], $this->config['ignore'])){
             return false;

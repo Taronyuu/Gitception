@@ -62,6 +62,11 @@ return [
     'test_run' => true,
 
     /**
+     * On what environments should exceptions be logged.
+     */
+    'environments' => ['production', 'staging'],
+
+    /**
      * A list of all exceptions that needs to be ignored, these won't be reported
      */
     'ignore' => [
