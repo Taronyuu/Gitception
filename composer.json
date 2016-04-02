@@ -14,8 +14,8 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-             "Zandervdm\\Gitception": "src/"
+        "psr-4": {
+             "Zandervdm\\Gitception\\": "src/"
         }
     },
     "minimum-stability": "dev"
