@@ -36,6 +36,11 @@ class GitceptionResetIssues extends Command
         parent::__construct();
 
         $this->config = config('gitception');
+
+        if(!$this->config['email'] || !$this->config['password']){
+            return;
+        }
+
         $email = Crypt::decrypt($this->config['email']);
         $password = Crypt::decrypt($this->config['password']);
 

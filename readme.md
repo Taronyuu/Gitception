@@ -38,7 +38,7 @@ Bitbucket requires us to specify our E-mail and password, because we don't want 
 php artisan gitception:credentials
 ```
 
-After you copied those 2 lines we'll continue to the config file located at `/config/gitception.php`. Change `git_username` and `git_repository`. The rest is all optional and can be left alone if you like it.
+After you copied those 2 lines we'll continue to the config file located at `/config/gitception.php`. Change `git_username` and `git_repository`. The rest is all optional and can be left alone if you like it. However for production you should change `test_run` to `false` if you want to report exceptions.
 
 Last thing we need to do is add our report command to the Laravel exception handler. By default this is located in `/app/Exceptions/Handler.php'`. Search for the `report(Exception $e)` function and add `\Gitception::create($e);`
 ```
