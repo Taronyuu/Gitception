@@ -42,7 +42,7 @@ return [
     /**
      * If this is set to true, no real issue will be created and the issue will not be saved
      */
-    'test_run' => false,
+    'test_run' => true,
 
     /**
      * A list of all exceptions that needs to be ignored, these won't be reported

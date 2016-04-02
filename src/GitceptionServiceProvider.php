@@ -3,6 +3,7 @@
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
+use Zandervdm\Gitception\Commands\GitceptionGenerateCredentials;
 
 class GitceptionServiceProvider extends ServiceProvider
 {
@@ -35,9 +36,17 @@ class GitceptionServiceProvider extends ServiceProvider
             'config/gitception.php'
         ]);
 
-        App::bind('zandervdm.gitception', function(){
+        //Bind the Gitception class
+        $this->app->bind('zandervdm.gitception', function(){
             return new Gitception();
         });
+
+        //Bind the Gitception credentials command
+        $this->app->singleton('zandervdm.gitception.command.generate', function(){
+            return new GitceptionGenerateCredentials();
+        });
+
+        $this->commands('zandervdm.gitception.command.generate');
     }
 
 }

@@ -1,4 +1,6 @@
-<?php namespace Zandervdm\Gitception;
+<?php
+
+namespace Zandervdm\Gitception;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;

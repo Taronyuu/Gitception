@@ -1,4 +1,6 @@
-<?php namespace Zandervdm\Gitception;
+<?php
+
+namespace Zandervdm\Gitception;
 
 class Facade extends \Illuminate\Support\Facades\Facade
 {
