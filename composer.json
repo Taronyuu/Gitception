@@ -1,8 +1,10 @@
 {
     "name": "zandervdm/gitception",
     "description": "Log exceptions to Bitbucket and Github",
+    "keywords": ["laravel", "log", "exceptions", "github", "bitbucket"],
     "type": "library",
     "require": {
+        "php": ">=5.3.0",
         "gentle/bitbucket-api": "^0.8.0"
     },
     "authors": [
