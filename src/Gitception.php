@@ -1,5 +1,6 @@
 <?php namespace Zandervdm\Gitception;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Request;
@@ -16,12 +17,15 @@ class Gitception
     private $config = [];
     private $bitbucket;
 
+    /**
+     * Gitception constructor.
+     */
     public function __construct()
     {
         //Store all the config values in a local var, and decrypt the credentials.
         $this->config = config('gitception');
-        $this->config['email'] = Crypt::decrypt($this->config['email']);
-        $this->config['password'] = Crypt::decrypt($this->config['password']);
+//        $this->config['email'] = Crypt::decrypt($this->config['email']);
+//        $this->config['password'] = Crypt::decrypt($this->config['password']);
 
         //Create a new issue object for Bitbucket, and set our credentials.
         $this->bitbucket = new Issues();
@@ -30,6 +34,15 @@ class Gitception
         );
     }
 
+    /**
+     * create function.
+     * This function should be called from the Laravel exception handler. It will determine if the issue should be
+     * reported, will parse the issue template and will create the issue. Also it will store the updated issue
+     * in the cache so multiple issues aren't reported multiple times.
+     *
+     * @param $exception
+     * @return void
+     */
     public function create($exception)
     {
         //Get our exception details in a nice array
@@ -38,8 +51,6 @@ class Gitception
         if(!$this->shouldReportException($exceptionData)){
             return;
         }
-        $exceptionCache = Cache::get('zandervdm.gitception.exceptions');
-
 
         //Get our title and content
         $title = $this->createIssueTitleFromException($exceptionData);
@@ -53,11 +64,23 @@ class Gitception
             'priority' => $this->config['default_issue_priority'],
         ]);
 
-
+        $this->storeExceptionInCache($exceptionData);
     }
 
+    /**
+     * shouldReportException function.
+     * Will determine if the issue should be reported.
+     *
+     * @param $exceptionData
+     * @return bool
+     */
     private function shouldReportException($exceptionData)
     {
+        //If test_run is set to true, don't report it.
+        if($this->config['test_run']){
+            return false;
+        }
+
         //This exception is in the 'ignore' config, so ignore it.
         if(in_array($exceptionData['class'], $this->config['ignore'])){
             return false;
@@ -70,9 +93,63 @@ class Gitception
             return true;
         }
 
-        
+        $exception = $exceptionCache->where('class', $exceptionData['class'])
+                                    ->where('file', $exceptionData['file'])
+                                    ->first();
+
+        if(!$exception){
+            return true;
+        }
+
+        if($exception['timestamp'] < (Carbon::now()->timestamp - $this->config['sleep_time'])){
+            return true;
+        }
+
+        return false;
     }
 
+    /**
+     * storeExceptionInCache function.
+     * Updates the cache with a new exception or will update an existing exception.
+     *
+     * @param $exceptionData
+     * @return void
+     */
+    private function storeExceptionInCache($exceptionData)
+    {
+        $exceptionCache = Cache::get('zandervdm.gitception.exceptions');
+
+        if(!$exceptionCache){
+            $exceptionCache = [];
+        }
+
+        $exceptionExists = false;
+        foreach($exceptionCache as $key => $exception){
+            if($exception['file'] == $exceptionData['file'] && $exception['class'] == $exceptionData['class']){
+                $exceptionCache[$key]['timestamp'] = Carbon::now()->timestamp;
+                $exceptionExists = true;
+            }
+        }
+
+        if(!$exceptionExists){
+            $exceptionCache[] = [
+                'file' => $exceptionData['file'],
+                'class' => $exceptionData['class'],
+                'timestamp' => Carbon::now()->timestamp,
+            ];
+        }
+
+        Cache::forever('zandervdm.gitception.exceptions', $exceptionCache);
+        return;
+    }
+
+    /**
+     * getExceptionData function.
+     * Creates a nicely formated exception array
+     *
+     * @param $exception
+     * @return array
+     */
     private function getExceptionData($exception)
     {
         $data = [];
@@ -112,11 +189,28 @@ class Gitception
         return $data;
     }
 
+    /**
+     * createMarkdownContentFromException function.
+     * Returns the rendered exception view.
+     *
+     * @param $data
+     * @return mixed
+     */
     private function createMarkdownContentFromException($data)
     {
+        if($this->config['custom_view']){
+            return view($this->config['custom_view'], compact('data'))->render();
+        }
         return view('gitception::exception-markdown', compact('data'))->render();
     }
 
+    /**
+     * createIssueTitleFromException function.
+     * Returns the title for the issue
+     *
+     * @param $exceptionData
+     * @return string
+     */
     private function createIssueTitleFromException($exceptionData)
     {
         return "New exception [" . $exceptionData['method'] . "]" . $exceptionData['host'] . ': ' . $exceptionData['exception'];

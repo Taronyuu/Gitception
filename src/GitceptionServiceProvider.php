@@ -7,6 +7,11 @@ use Illuminate\Support\ServiceProvider;
 class GitceptionServiceProvider extends ServiceProvider
 {
 
+    /**
+     * boot function.
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->publishes([
