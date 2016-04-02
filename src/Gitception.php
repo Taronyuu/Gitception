@@ -26,8 +26,8 @@ class Gitception
     {
         //Store all the config values in a local var, and decrypt the credentials.
         $this->config = config('gitception');
-//        $this->config['email'] = Crypt::decrypt($this->config['email']);
-//        $this->config['password'] = Crypt::decrypt($this->config['password']);
+        $this->config['email'] = Crypt::decrypt($this->config['email']);
+        $this->config['password'] = Crypt::decrypt($this->config['password']);
 
         //Create a new issue object for Bitbucket, and set our credentials.
         $this->bitbucket = new Issues();
@@ -59,7 +59,7 @@ class Gitception
         $content = $this->createMarkdownContentFromException($exceptionData);
 
         //Create the final issue in Bitbucket
-        $result = $this->bitbucket->create("Zandervdm", "gitception", [
+        $result = $this->bitbucket->create($this->config['git_username'], $this->config['git_repository'], [
             'title' => $title,
             'content' => $content,
             'kind' => $this->config['default_issue_type'],
@@ -103,7 +103,7 @@ class Gitception
             return true;
         }
 
-        if($exception['timestamp'] < (Carbon::now()->timestamp - $this->config['sleep_time'])){
+        if($exception['timestamp'] < (Carbon::now()->timestamp - ($this->config['sleep_time'] * 60))){
             return true;
         }
 
