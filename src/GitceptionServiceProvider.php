@@ -1,43 +1,38 @@
-<?php
-
-namespace Zandervdm\Gitception;
+<?php namespace Zandervdm\Gitception;
 
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 
 class GitceptionServiceProvider extends ServiceProvider
 {
 
-    protected $defer = false;
-
-    /**
-     * Bootstrap the application services.
-     *
-     * @return void
-     */
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/gitception.php' => config_path('gitception.php')
+            __DIR__ . '/../config/gitception.php' => config_path('gitception.php'),
         ]);
 
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'gitception');
+
         $loader = AliasLoader::getInstance();
-        $loader->alias('Gitception', GitceptionFacade::class);
+        $loader->alias('Gitception', 'Zandervdm\Gitception\Facade');
     }
 
     /**
-     * Register the application services.
+     * Register the service provider.
      *
      * @return void
      */
     public function register()
     {
         config([
-            'config/gitception.php',
+            'config/gitception.php'
         ]);
 
-        $this->app['zandervdm.gitception'] = $this->app->share(function($app){
-            return new GitceptionClass();
+        App::bind('zandervdm.gitception', function(){
+            return new Gitception();
         });
     }
+
 }

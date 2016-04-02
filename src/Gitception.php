@@ -1,14 +1,14 @@
-<?php
-
-namespace Zandervdm\Gitception;
+<?php namespace Zandervdm\Gitception;
 
 use Illuminate\Support\Facades\Request;
 use Bitbucket\API\Authentication\Basic;
 use Bitbucket\API\Http\Listener\BasicAuthListener;
 use Bitbucket\API\Repositories\Issues;
 use Bitbucket\API\User;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 
-class GitceptionClass
+class Gitception
 {
     private $config = [];
     private $bitbucket;
@@ -27,9 +27,11 @@ class GitceptionClass
     public function create($exception)
     {
         $exceptionData = $this->getExceptionData($exception);
+        $title = $this->createIssueTitleFromException($exceptionData);
+        $content = $this->createMarkdownContentFromException($exceptionData);
         $result = $this->bitbucket->create("Zandervdm", "gitception", [
-            'title' => "New exception: " . $exceptionData['method'] . ': ' . $exceptionData['fullUrl'],
-            'content' => $exceptionData['exception'],
+            'title' => $title,
+            'content' => $content,
             'kind' => 'bug',
             'priority' => 'major'
         ]);
@@ -58,7 +60,12 @@ class GitceptionClass
             'HEADERS' => Request::header(),
         );
         $data['storage'] = array_filter($data['storage']);
+        $count = 15;
+        $lines = file($data['file']);
         $data['exegutor'] = [];
+        for ($i = -1 * abs($count); $i <= abs($count); $i++) {
+            $data['exegutor'][] = $data['line'];
+        }
         $data['exegutor'] = array_filter($data['exegutor']);
         // to make symfony exception more readable
         if ($data['class'] == 'Symfony\Component\Debug\Exception\FatalErrorException') {
@@ -67,7 +74,16 @@ class GitceptionClass
                 $data['exception'] = $matches[1];
             }
         }
-
         return $data;
+    }
+
+    private function createMarkdownContentFromException($data)
+    {
+        return view('gitception::exception-markdown', compact('data'))->render();
+    }
+
+    private function createIssueTitleFromException($exceptionData)
+    {
+        return "New exception [" . $exceptionData['method'] . "]" . $exceptionData['host'] . ': ' . $exceptionData['exception'];
     }
 }
