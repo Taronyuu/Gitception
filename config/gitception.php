@@ -3,6 +3,13 @@
 return [
 
     /**
+     * Where do you host your respository?
+     * Available options: bitbucket
+     * Note: Github will be added soon
+     */
+    'provider' => 'bitbucket',
+
+    /**
      * This is your encrypted Bitbucket email taken from your environment file.
      * You can generate your encrypted email by using the 'gitception:credentials' command.
      */
